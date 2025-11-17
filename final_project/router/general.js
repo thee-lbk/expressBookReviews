@@ -50,18 +50,25 @@ public_users.get('/isbn/:isbn',function (req, res) {
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
   const author = req.params.author;
-  const booksByAuthor = [];
-  const bookKeys = Object.keys(books);
-  for (const key of bookKeys) {
-    if (books[key].author === author) {
-      booksByAuthor.push(books[key]);
+  let promise = new Promise((resolve,reject) => {
+    const booksByAuthor = [];
+    const bookKeys = Object.keys(books);
+    for (const key of bookKeys) {
+        if (books[key].author === author) {
+            booksByAuthor.push(books[key]);
+        }
     }
-  }
-  if (booksByAuthor.length > 0) {
-    return res.json(booksByAuthor);
-  } else {
-    return res.status(404).json({message: "No books by this author found"});
-  }
+    if (booksByAuthor.length > 0) {
+        resolve(booksByAuthor);
+    } else {
+        reject("No books by this author found");
+    }
+  })
+  promise.then((successMessage) => {
+      res.json(successMessage)
+  }).catch(err => {
+      res.status(404).json({message: err});
+  })
 });
 
 // Get all books based on title
